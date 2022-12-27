@@ -16,7 +16,7 @@ local Keybind = "K"
 
 
 
-local Window = getfenv().MainWindow
+local Window = getfenv().HUB
 
 --datalists 
 
