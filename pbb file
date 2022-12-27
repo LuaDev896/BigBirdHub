@@ -38,7 +38,7 @@ local function Setup()
 	
 	for i,v in pairs(game.Workspace:GetChildren()) do 
 
-		if string.find(v.Name,"Chunk") then 
+		if string.find(v.Name,"chunk") then 
 			CurrentChunk = v
 			break
 
@@ -247,7 +247,7 @@ end
 
 local function AutoWalk(Value:boolean)
 
-	if game.workspace:FindFirstChild("Chunk9") == nil then
+	if game.workspace:FindFirstChild("chunk9") == nil then
 
 		OrionLib:MakeNotification({
 			Name = "Wrong area",
