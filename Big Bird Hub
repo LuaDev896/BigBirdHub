@@ -1,0 +1,25 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+
+
+
+
+getfenv().OrionLib = OrionLib
+
+
+local Ids = {
+    PokemonBrickBronzeForever = 11932028790
+}
+
+
+if game.PlaceId == 11932028790 then 
+
+    local MainWindow = OrionLib:MakeWindow({Name = "Bird Hub | PBB: Forever 🎄", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest",IntroEnabled = true, IntroText = "YOURE THE BIGGEST BIRD", IntroIcon = "https://th.bing.com/th/id/OIP.KfOqvnRa3qAO9jChukDzuwHaGm?pid=ImgDet&rs=1"})
+
+    loadstring(game:HttpGet(('https://raw.githubusercontent.com/LuaDev896/BigBirdHub/80512f92df05503fb5616b88de0d233e2f1cd369/pbb%20file')))()
+
+
+    getfenv().HUB = MainWindow
+end 
+
+OrionLib:Init()
