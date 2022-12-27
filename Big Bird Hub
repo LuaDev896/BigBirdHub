@@ -22,7 +22,7 @@ if game.PlaceId == 11932028790 then
     getfenv().HUB = MainWindow
 
 
-    loadstring(game:HttpGet(('https://raw.githubusercontent.com/LuaDev896/BigBirdHub/80512f92df05503fb5616b88de0d233e2f1cd369/pbb%20file')))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaDev896/BigBirdHub/80512f92df05503fb5616b88de0d233e2f1cd369/pbb%20file"))()
 
 end 
 
