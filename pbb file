@@ -1,0 +1,332 @@
+local ContextService = game:GetService("ContextActionService")
+local Pathfinding = game:GetService("PathfindingService")
+local Plr = game.Players.LocalPlayer
+local Char = Plr.Character or Plr.CharacterAdded:Wait()
+local Hrp = Char:WaitForChild("HumanoidRootPart")
+local Hum = Char:WaitForChild("Humanoid")
+local InputService = game:GetService("UserInputService")
+
+local OrionLib = getfenv().OrionLib
+
+local Bindable = Instance.new("BindableEvent")
+
+local Traversing = false
+
+local Keybind = "K"
+
+
+
+local Window = getfenv().MainWindow
+
+--datalists 
+
+local CurrentChunk = nil
+
+--statuses 
+local AutoWalking = false
+
+
+-- tabs 
+local EggsTab = nil
+
+-- toggle buttons 
+
+local AutoWalkerButton = nil 
+
+local function Setup()
+	--pbb vers
+	
+	for i,v in pairs(game.Workspace:GetChildren()) do 
+
+		if string.find(v.Name,"Chunk") then 
+			CurrentChunk = v
+			break
+
+		end
+
+	end
+	
+	
+end
+
+
+
+Setup()
+
+local function CheckPlrLocation()
+
+	local ChunkFound = nil
+	local Different = false --assumes that the chunk found and the past chunk are the same
+
+	for i,v in pairs(game.Workspace:GetChildren()) do 
+
+		if string.find(v.Name,"Chunk") then 
+			ChunkFound = v
+			break
+
+		end
+
+	end
+
+	if CurrentChunk ~= ChunkFound then
+
+		Bindable:Fire()--player has teleported somewhere else
+		CurrentChunk = ChunkFound
+
+	end
+
+
+
+
+end 
+
+coroutine.resume(coroutine.create(function()
+	
+	while OrionLib ~= nil do 
+		
+		CheckPlrLocation() --checks if plr is in the same chunk or not
+		
+		task.wait(1)
+	end
+	
+end))
+
+
+local function FollowPath(targets)
+	assert(Traversing == false, "Nigga stop tryna fucking tweak with this shit 💀💀")
+	print(targets)
+	Traversing = true
+	local TeleportSuspect = false
+
+	local Con1 = Bindable.Event:connect(function()
+		TeleportSuspect = true
+
+	end)
+
+	for i,Data in ipairs(targets) do
+
+		if TeleportSuspect == true then
+
+			if Con1 then
+				Con1:Disconnect()
+			end
+
+
+			return
+		end
+
+		local Target = Data.P
+
+		print("target id ", Target)
+		local waypoints
+		local nextWaypointIndex
+		local reachedConnection
+		local blockedConnection
+
+
+
+
+
+		local path = Pathfinding:CreatePath(
+			{
+				AgentRadius = (Char.LeftHand.Position - Char.RightHand.Position ).magnitude + (Char.RightHand.Size.Z) ,
+				WaypointSpacing = 4,
+				AgentHeight = 6,
+				AgentCanJump = false,
+				AgentCanClimb = true,
+				Costs = {
+					Water = 20
+				}
+
+			}
+		)
+
+
+
+
+		--start moving the char to each point
+
+		local function Compute()
+
+			local Succ,Err = pcall(function()
+
+				path:ComputeAsync(Hrp.Position,Target)
+
+				OrionLib:MakeNotification({
+					Name = "Computing path",
+					Content = "Will try again if failed",
+					Image = "rbxassetid://4483345998",
+					Time = 2
+				})
+
+			end)
+
+			return Succ,Err
+		end
+
+		local ComputeSuccess = false
+
+		repeat
+
+			local Succ,Err = Compute()
+
+			if not Succ then 
+				print(Err) 
+
+				OrionLib:MakeNotification({
+					Name = "Computation failed",
+					Content = "Failed to generate path, Trying again.",
+					Image = "rbxassetid://4483345998",
+					Time = 1
+				})
+
+				task.wait(1)
+			end
+
+			if Succ and path.Status ~= Enum.PathStatus.NoPath then 
+				ComputeSuccess = true
+			end
+
+		until ComputeSuccess 
+
+		waypoints = path:GetWaypoints()
+
+		for i,v in pairs(waypoints) do
+
+
+			Hum:MoveTo(v)
+			local Arrived = false
+			local TeleportSuspect = false
+
+
+
+
+			local Con2 = Hum.MoveToFinished:connect(function()
+				Arrived = true
+
+			end)
+
+			
+
+
+
+
+
+			repeat
+				task.wait()
+			until Arrived or TeleportSuspect == true
+
+			if TeleportSuspect == true then
+				Con1:Disconnect()
+				Con2:Disconnect()
+				break
+			end
+
+			Con2:Disconnect()
+
+
+
+
+
+
+
+
+
+		end
+
+
+
+		task.wait(Data.D)
+	end
+
+	Traversing = false
+end
+
+
+
+
+local function AutoWalk(Value:boolean)
+
+	if game.workspace:FindFirstChild("Chunk9") == nil then
+
+		OrionLib:MakeNotification({
+			Name = "Wrong area",
+			Content = "You must be in 'Lagoona Lake' in order to start auto walking",
+			Image = "rbxassetid://4483345998",
+			Time = 5
+		})
+
+		if AutoWalkerButton then 
+			AutoWalkerButton:Set(false)
+		end 
+
+		return 
+
+
+
+
+	end
+
+
+	if Value == false then 
+
+		if AutoWalking then 
+			Bindable:Fire()
+
+		end
+
+		AutoWalking = false
+
+		return
+
+	end 
+
+
+	if Value == true and AutoWalking == false then 
+
+		AutoWalking = true
+
+		local PathList = {
+			{P = Vector3.new(246.508, 92.2998, -971.18 ), D = 0,TZ = false},
+			{P = Vector3.new(518.942, 92.2998, -828.73 ), D = 0,TZ = false}
+		}
+
+
+		while AutoWalking do 
+
+
+			FollowPath(PathList)
+
+			task.wait(math.random(1,5)) -- did this cuz mfs wanna meat ride and record, would be sus if u dead it same way every time
+		end 
+
+	end 
+
+
+end
+
+
+
+
+EggsTab = Window:MakeTab({
+	Name = "Eggs",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+
+
+
+
+AutoWalkerButton = EggsTab:AddToggle({
+	Name = "Toggle auto walking",
+	Default = false,
+	Callback = function(Value)
+
+		AutoWalking = Value
+
+		AutoWalk(Value)
+
+
+	end    
+})
